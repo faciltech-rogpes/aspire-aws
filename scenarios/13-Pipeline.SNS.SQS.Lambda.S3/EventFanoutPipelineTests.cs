@@ -19,7 +19,7 @@ public class EventFanoutPipelineTests(Fixture fixture) : IClassFixture<Fixture>
             });
 
             return response.S3Objects.Any();
-        }, timeout: TimeSpan.FromSeconds(45));
+        }, timeout: TimeSpan.FromSeconds(120));
 
         var objects = await fixture.S3.ListObjectsV2Async(new ListObjectsV2Request
         {

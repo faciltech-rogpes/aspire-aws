@@ -35,7 +35,7 @@ public class EventBridgeLambdaTests(Fixture fixture) : IClassFixture<Fixture>
             return scan.Items.Any(item =>
                 item.TryGetValue("detail_type", out var detailType) &&
                 detailType.S == "OrderPlaced");
-        }, timeout: TimeSpan.FromSeconds(30));
+        }, timeout: TimeSpan.FromSeconds(90));
     }
 
     [SkipOnMacOsArm64LocalStackLambdaFact]

@@ -1,15 +1,18 @@
 using Amazon.S3.Model;
+using Xunit.Abstractions;
 
 namespace Scenarios.S3.Basic;
 
-public class S3BasicTests(Fixture fixture) : IClassFixture<Fixture>
+public class S3BasicTests(Fixture fixture, ITestOutputHelper output) : IClassFixture<Fixture>
 {
     [Fact]
     public async Task CreateBucket_ShouldSucceed()
     {
+        output.WriteLine("Criando bucket...");
         await fixture.S3.PutBucketAsync("test-bucket-create");
 
         var buckets = await fixture.S3.ListBucketsAsync();
+        output.WriteLine($"Buckets encontrados: {buckets.Buckets.Count}");
 
         Assert.Contains(buckets.Buckets, bucket => bucket.BucketName == "test-bucket-create");
     }

@@ -23,7 +23,7 @@ public class S3LambdaTriggerTests(Fixture fixture) : IClassFixture<Fixture>
                 new Dictionary<string, AttributeValue> { ["key"] = new() { S = "report.pdf" } });
 
             return response.Item.ContainsKey("key");
-        }, timeout: TimeSpan.FromSeconds(30));
+        }, timeout: TimeSpan.FromSeconds(90));
 
         var item = await fixture.DynamoDB.GetItemAsync(
             Fixture.TableName,

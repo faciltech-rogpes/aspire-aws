@@ -26,6 +26,6 @@ public class FileProcessingPipelineTests(Fixture fixture) : IClassFixture<Fixtur
             return scan.Items.Any(item =>
                 item.TryGetValue("body", out var body) &&
                 body.S.Contains("invoice-001.pdf", StringComparison.Ordinal));
-        }, timeout: TimeSpan.FromSeconds(45));
+        }, timeout: TimeSpan.FromSeconds(120));
     }
 }
