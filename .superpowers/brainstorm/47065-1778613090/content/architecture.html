@@ -1,0 +1,166 @@
+<h2>Cenário 16 — Arquitetura final</h2>
+<p class="subtitle">Abordagem 2: Scheduler configurado + invocação direta nos testes</p>
+
+<style>
+  .arch-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 20px auto;
+    max-width: 820px;
+  }
+  .node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 11px 18px;
+    min-width: 210px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .node .sub { font-size: 10px; font-weight: 400; opacity: 0.7; margin-top: 2px; }
+  .node-sched  { background:#1a365d; border:2px solid #63b3ed; color:#bee3f8; }
+  .node-lambda { background:#322659; border:2px solid #9f7aea; color:#e9d8fd; }
+  .node-sqs    { background:#744210; border:2px solid #f6ad55; color:#feebc8; }
+  .node-dynamo { background:#1c4532; border:2px solid #68d391; color:#c6f6d5; }
+  .node-echo   { background:#63171b; border:2px solid #fc8181; color:#fed7d7; }
+
+  .arr { display:flex;flex-direction:column;align-items:center; }
+  .arr-line { width:2px;height:18px;background:#4a5568; }
+  .arr-head { width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:9px solid #4a5568; }
+  .arr-lbl  { font-size:10px;color:#718096;margin:-7px 0 2px;background:#1a202c;padding:1px 5px;border-radius:3px; }
+
+  .dynamo-side {
+    display:flex;align-items:center;justify-content:center;gap:0;width:100%;margin:6px 0;
+  }
+  .side-conn {
+    display:flex;align-items:center;gap:0;
+  }
+  .h-line { height:2px;background:#4a5568; }
+  .side-lbl { font-size:10px;color:#718096;padding:0 5px;background:#1a202c; }
+
+  .branch-row { display:flex;align-items:flex-start;justify-content:center;gap:60px;width:100%; }
+  .branch-leg { display:flex;flex-direction:column;align-items:center; }
+  .b-lbl { font-size:10px;font-weight:600;color:#68d391;background:#1a202c;padding:2px 8px;border-radius:3px;margin-bottom:4px; }
+  .b-lbl-off { color:#4a5568; }
+
+  .stdout { background:#0d1117;border:1px dashed #2d3748;border-radius:5px;padding:7px 12px;font-size:11px;color:#68d391;font-family:monospace;margin-top:8px;text-align:left; }
+  .dim { opacity:0.35; }
+
+  .test-pill {
+    background:#2a4365;border:1px dashed #63b3ed;border-radius:20px;
+    padding:4px 12px;font-size:10px;color:#90cdf4;margin-bottom:2px;
+  }
+
+  .legend {
+    display:flex;gap:16px;margin-top:20px;flex-wrap:wrap;justify-content:center;
+  }
+  .legend-item {
+    display:flex;align-items:center;gap:6px;font-size:11px;color:#718096;
+  }
+  .legend-dot { width:10px;height:10px;border-radius:50%; }
+</style>
+
+<div class="arch-wrap">
+
+  <div class="test-pill">⚡ nos testes: invoke direto — não espera o timer</div>
+
+  <!-- Scheduler -->
+  <div class="node node-sched">
+    ⏱ EventBridge Scheduler
+    <div class="sub">rate(20 seconds) → offer-producer</div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-lbl">InvokeFunction</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <!-- offer-producer Lambda -->
+  <div class="node node-lambda">
+    λ offer-producer
+    <div class="sub">gera oferta · publica no SQS</div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-lbl">SendMessage (JSON)</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <!-- credit-offers SQS -->
+  <div class="node node-sqs">
+    ▦ credit-offers-queue
+    <div class="sub">fila de entrada · event source mapping</div>
+  </div>
+
+  <div class="arr"><div class="arr-line"></div><div class="arr-lbl">trigger batch=1</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <!-- offer-router Lambda -->
+  <div class="node node-lambda">
+    λ offer-router
+    <div class="sub">scan DynamoDB (cold start) · cacheia regras · roteia</div>
+  </div>
+
+  <!-- DynamoDB side connection -->
+  <div class="dynamo-side">
+    <div style="flex:1;max-width:160px;display:flex;justify-content:flex-end;">
+      <div class="side-conn">
+        <div class="h-line" style="width:70px;"></div>
+        <div class="side-lbl">Scan (cold start)</div>
+        <div class="h-line" style="width:20px;"></div>
+      </div>
+    </div>
+    <div style="width:2px;"></div>
+    <div style="flex:1;max-width:200px;display:flex;justify-content:flex-start;">
+      <div class="node node-dynamo" style="min-width:190px;font-size:12px;">
+        ⬡ routing-rules
+        <div class="sub">PK: segment · attr: target_queue_url</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="arr" style="margin-top:4px;"><div class="arr-line"></div><div class="arr-lbl">SendMessage (routing)</div><div class="arr-line"></div><div class="arr-head"></div></div>
+
+  <!-- Branch -->
+  <div class="branch-row">
+
+    <!-- Consignado (active) -->
+    <div class="branch-leg">
+      <div class="b-lbl">segment = "consignado" ✓</div>
+      <div class="node node-sqs" style="min-width:190px;">
+        ▦ consignado-offers-queue
+        <div class="sub">fila dedicada · event source mapping</div>
+      </div>
+      <div class="arr"><div class="arr-line"></div><div class="arr-lbl">trigger batch=1</div><div class="arr-line"></div><div class="arr-head"></div></div>
+      <div class="node node-echo" style="min-width:190px;">
+        λ consignado-echo
+        <div class="sub">ecoa oferta no stdout</div>
+      </div>
+      <div class="stdout">
+        [OFFER] id=offer-001<br>
+        segment=consignado<br>
+        rate=1.2% · amount=R$10000
+      </div>
+    </div>
+
+    <!-- Outros (dim) -->
+    <div class="branch-leg dim">
+      <div class="b-lbl b-lbl-off">outros segmentos</div>
+      <div class="node node-sqs" style="min-width:160px;font-size:11px;">
+        ▦ &lt;target_queue_url&gt;
+        <div class="sub">extensível via DynamoDB</div>
+      </div>
+      <div style="font-size:10px;color:#4a5568;margin-top:6px;">fora do escopo</div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#9f7aea"></div>Lambda (Python)</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f6ad55"></div>SQS Queue</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#68d391"></div>DynamoDB</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#63b3ed"></div>EventBridge Scheduler</div>
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Próxima seção: modelos de dados (SQS payload + DynamoDB schema) — no terminal.</p>

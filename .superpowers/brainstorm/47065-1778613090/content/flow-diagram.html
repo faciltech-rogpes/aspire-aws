@@ -1,0 +1,238 @@
+<h2>Cenário 16 — Credit Offer Router</h2>
+<p class="subtitle">Fluxo proposto — abra no browser em <strong>http://localhost:65182</strong></p>
+
+<style>
+  .flow-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 24px auto;
+    max-width: 760px;
+  }
+  .flow-node {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 12px 20px;
+    min-width: 220px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    position: relative;
+  }
+  .flow-node .badge {
+    font-size: 10px;
+    font-weight: 400;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+  .node-scheduler { background: #2d3748; border: 2px solid #63b3ed; color: #bee3f8; }
+  .node-sqs       { background: #2d3748; border: 2px solid #f6ad55; color: #feebc8; }
+  .node-lambda    { background: #2d3748; border: 2px solid #9f7aea; color: #e9d8fd; }
+  .node-dynamo    { background: #2d3748; border: 2px solid #68d391; color: #c6f6d5; }
+  .node-echo      { background: #2d3748; border: 2px solid #fc8181; color: #fed7d7; }
+
+  .arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 0;
+  }
+  .arrow-line {
+    width: 2px;
+    height: 22px;
+    background: #718096;
+  }
+  .arrow-head {
+    width: 0;
+    height: 0;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+    border-top: 10px solid #718096;
+  }
+  .arrow-label {
+    font-size: 11px;
+    color: #a0aec0;
+    margin: -8px 0 2px 0;
+    background: #1a202c;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .branch-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .branch-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+  }
+  .branch-leg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+  .branch-h-line {
+    height: 2px;
+    width: 120px;
+    background: #718096;
+    margin-top: 22px;
+  }
+  .branch-label {
+    font-size: 11px;
+    color: #68d391;
+    font-weight: 600;
+    margin-bottom: 4px;
+    background: #1a202c;
+    padding: 1px 8px;
+    border-radius: 4px;
+  }
+  .branch-inactive {
+    opacity: 0.4;
+  }
+  .branch-inactive .branch-label {
+    color: #718096;
+  }
+
+  .side-note {
+    font-size: 11px;
+    color: #718096;
+    margin: 4px 0 0 0;
+    font-style: italic;
+  }
+  .stdout-box {
+    background: #171923;
+    border: 1px dashed #4a5568;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: #a0aec0;
+    font-family: monospace;
+    margin-top: 8px;
+    min-width: 180px;
+    text-align: left;
+  }
+</style>
+
+<div class="flow-wrap">
+
+  <!-- Scheduler -->
+  <div class="flow-node node-scheduler">
+    ⏱ EventBridge Scheduler
+    <div class="badge">rate(20 seconds)</div>
+  </div>
+
+  <div class="arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-label">invoca</div>
+    <div class="arrow-line"></div>
+    <div class="arrow-head"></div>
+  </div>
+
+  <!-- Producer Lambda -->
+  <div class="flow-node node-lambda">
+    λ offer-producer
+    <div class="badge">gera oferta de crédito de teste</div>
+  </div>
+
+  <div class="arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-label">SendMessage</div>
+    <div class="arrow-line"></div>
+    <div class="arrow-head"></div>
+  </div>
+
+  <!-- Offers Queue -->
+  <div class="flow-node node-sqs">
+    ▦ SQS: credit-offers-queue
+    <div class="badge">fila de entrada de ofertas</div>
+  </div>
+
+  <div class="arrow">
+    <div class="arrow-line"></div>
+    <div class="arrow-label">event source mapping</div>
+    <div class="arrow-line"></div>
+    <div class="arrow-head"></div>
+  </div>
+
+  <!-- Router Lambda -->
+  <div class="flow-node node-lambda">
+    λ offer-router
+    <div class="badge">lê regras de roteamento</div>
+  </div>
+
+  <!-- DynamoDB side -->
+  <div style="display:flex;align-items:center;gap:0;width:100%;justify-content:center;margin:4px 0;">
+    <div style="flex:1;max-width:180px;display:flex;flex-direction:column;align-items:flex-end;">
+      <div style="display:flex;align-items:center;gap:0">
+        <div style="height:2px;width:80px;background:#718096;"></div>
+        <div style="font-size:11px;color:#a0aec0;white-space:nowrap;padding:0 6px;">GetItem</div>
+        <div style="height:2px;width:30px;background:#718096;"></div>
+      </div>
+    </div>
+    <div style="width:2px;height:30px;background:transparent;"></div>
+    <div style="flex:1;max-width:180px;display:flex;flex-direction:column;align-items:flex-start;">
+      <div class="flow-node node-dynamo" style="min-width:180px;font-size:12px;">
+        ⬡ DynamoDB: routing-rules
+        <div class="badge">segment → targetQueue</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branch -->
+  <div class="arrow" style="margin-top:4px;">
+    <div class="arrow-line"></div>
+    <div class="arrow-label">roteamento</div>
+    <div class="arrow-line"></div>
+    <div class="arrow-head"></div>
+  </div>
+
+  <div class="branch-row">
+    <!-- Consignado leg (active) -->
+    <div class="branch-leg">
+      <div class="branch-label">segment = consignado ✓</div>
+      <div class="flow-node node-sqs" style="min-width:190px;">
+        ▦ SQS: consignado-queue
+        <div class="badge">fila dedicada</div>
+      </div>
+      <div class="arrow">
+        <div class="arrow-line"></div>
+        <div class="arrow-label">event source mapping</div>
+        <div class="arrow-line"></div>
+        <div class="arrow-head"></div>
+      </div>
+      <div class="flow-node node-echo" style="min-width:190px;">
+        λ consignado-echo
+        <div class="badge">ecoa oferta no stdout</div>
+      </div>
+      <div class="stdout-box">
+        [OFFER] id=offer-001<br>
+        segment=consignado<br>
+        rate=1.2% taxa
+      </div>
+    </div>
+
+    <!-- Other segments leg (inactive/future) -->
+    <div class="branch-leg branch-inactive">
+      <div class="branch-label">outros segmentos</div>
+      <div class="flow-node node-sqs" style="min-width:170px;opacity:0.4;">
+        ▦ SQS: outros-queue
+        <div class="badge">extensível</div>
+      </div>
+      <div class="side-note">fora do escopo<br>deste cenário</div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">O diagrama cobre o caminho feliz. A pergunta de design vem a seguir no terminal.</p>

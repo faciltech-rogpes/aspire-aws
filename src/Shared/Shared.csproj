@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.Testing" Version="9.5.2" />
+    <PackageReference Include="Aspire.Hosting.Testing" Version="13.3.1" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.*" />
     <PackageReference Include="AWSSDK.EventBridge" Version="3.*" />
     <PackageReference Include="AWSSDK.Lambda" Version="3.*" />
@@ -21,6 +21,8 @@
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.*" />
     <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.*" />
     <PackageReference Include="AWSSDK.SQS" Version="3.*" />
+    <PackageReference Include="AWSSDK.Scheduler" Version="3.*" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.*" />
     <PackageReference Include="AWSSDK.StepFunctions" Version="3.*" />
     <PackageReference Include="xunit" Version="2.9.3" />
   </ItemGroup>

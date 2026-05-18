@@ -14,8 +14,27 @@ public class LocalStackFixture : IAsyncLifetime
 
     public const string Endpoint = "http://localhost:4566";
 
+    protected static bool ModoAws =>
+        string.Equals(Environment.GetEnvironmentVariable("AWS_TARGET"), "aws",
+            StringComparison.OrdinalIgnoreCase);
+
     public async Task InitializeAsync()
     {
+        if (ModoAws)
+        {
+            try
+            {
+                await InitializeScenarioAsync().ConfigureAwait(false);
+                _scenarioInitialized = true;
+            }
+            catch
+            {
+                await ReleaseResourcesAsync().ConfigureAwait(false);
+                throw;
+            }
+            return;
+        }
+
         _portLock = await AcquirePortLockAsync().ConfigureAwait(false);
 
         try
@@ -27,6 +46,7 @@ public class LocalStackFixture : IAsyncLifetime
             _app = await appHost.BuildAsync().ConfigureAwait(false);
             await _app.StartAsync().ConfigureAwait(false);
             await WaitForLocalStackAsync().ConfigureAwait(false);
+            await ImprimirUrlDashboardAsync().ConfigureAwait(false);
             await InitializeScenarioAsync().ConfigureAwait(false);
             _scenarioInitialized = true;
         }
@@ -132,6 +152,24 @@ public class LocalStackFixture : IAsyncLifetime
         .ConfigureAwait(false);
 
         return stream!;
+    }
+
+    private static Task ImprimirUrlDashboardAsync()
+    {
+        // ASPNETCORE_URLS só está definida no modo demo (demo.sh).
+        // Em modo teste, o dashboard não é relevante — a execução é rápida.
+        var aspnetUrls = Environment.GetEnvironmentVariable("ASPNETCORE_URLS");
+        if (string.IsNullOrEmpty(aspnetUrls))
+            return Task.CompletedTask;
+
+        var baseUrl = aspnetUrls.Split(';')[0].TrimEnd('/');
+        Console.WriteLine();
+        Console.WriteLine("┌──────────────────────────────────────────────────────────────────┐");
+        Console.WriteLine($"│  ASPIRE DASHBOARD  →  {baseUrl,-44}│");
+        Console.WriteLine("│  (URL completa com token aparece no log do Aspire acima)         │");
+        Console.WriteLine("└──────────────────────────────────────────────────────────────────┘");
+        Console.WriteLine();
+        return Task.CompletedTask;
     }
 
     private static async Task WaitForLocalStackAsync()
