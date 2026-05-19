@@ -5,12 +5,12 @@ from datetime import datetime, timezone
 
 import boto3
 
-endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
-sqs = boto3.client("sqs", endpoint_url=endpoint_url)
-fila_ofertas_url = os.environ["FILA_OFERTAS_URL"]
 
+def lambda_handler(event, context):
+    endpoint_url = os.environ.get("AWS_ENDPOINT_URL")
+    sqs = boto3.client("sqs", endpoint_url=endpoint_url)
+    fila_ofertas_url = os.environ["FILA_OFERTAS_URL"]
 
-def handler(event, context):
     # usa dados do evento se fornecidos (invocação via testes); caso contrário gera oferta aleatória (scheduler)
     oferta = {
         "id": event.get("id", f"oferta-{uuid.uuid4().hex[:8]}"),

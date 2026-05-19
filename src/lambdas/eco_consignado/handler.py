@@ -1,7 +1,7 @@
 import json
 
 
-def handler(event, context):
+def lambda_handler(event, context):
     for registro in event["Records"]:
         oferta = json.loads(registro["body"])
         print(
