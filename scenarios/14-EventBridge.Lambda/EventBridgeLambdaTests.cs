@@ -41,6 +41,8 @@ public class EventBridgeLambdaTests(Fixture fixture, ITestOutputHelper output) :
                 item.TryGetValue("detail_type", out var detailType) &&
                 detailType.S == "OrderPlaced");
         }, timeout: TimeSpan.FromSeconds(90));
+
+        output.WriteLine("    Registro 'OrderPlaced' encontrado na tabela — Lambda processou o evento com sucesso");
     }
 
     [SkipOnMacOsArm64LocalStackLambdaFact]

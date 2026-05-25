@@ -1,7 +1,9 @@
 using Amazon;
 using Amazon.DynamoDBv2;
+using Amazon.ECS;
 using Amazon.EventBridge;
 using Amazon.Lambda;
+using Amazon.RDS;
 using Amazon.Runtime;
 using Amazon.Runtime.Internal;
 using Amazon.S3;
@@ -77,6 +79,16 @@ public static class AwsClientFactory
         ModoLocalStack
             ? new AmazonStepFunctionsClient(Credentials, Configure(new AmazonStepFunctionsConfig(), endpoint))
             : new AmazonStepFunctionsClient();
+
+    public static AmazonRDSClient RDS(string endpoint = LocalStackFixture.Endpoint) =>
+        ModoLocalStack
+            ? new AmazonRDSClient(Credentials, Configure(new AmazonRDSConfig(), endpoint))
+            : new AmazonRDSClient();
+
+    public static AmazonECSClient ECS(string endpoint = LocalStackFixture.Endpoint) =>
+        ModoLocalStack
+            ? new AmazonECSClient(Credentials, Configure(new AmazonECSConfig(), endpoint))
+            : new AmazonECSClient();
 
     private static TConfig Configure<TConfig>(TConfig config, string endpoint)
         where TConfig : ClientConfig

@@ -30,6 +30,8 @@ public class FileProcessingPipelineTests(Fixture fixture, ITestOutputHelper outp
             return scan.Items.Any(item =>
                 item.TryGetValue("body", out var body) &&
                 body.S.Contains("invoice-001.pdf", StringComparison.Ordinal));
+
+            output.WriteLine("    Registro encontrado na tabela — pipeline completo executado com sucesso");
         }, timeout: TimeSpan.FromSeconds(120));
     }
 }
