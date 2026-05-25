@@ -3,6 +3,15 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# AI assistant config (local only)
+CLAUDE.md
+AGENTS.md
+.superpowers/
+.claude/
+
+# Visual Studio / Rider NuGet restore cache
+*.lscache
+
 # dotenv files
 .env
 

@@ -42,12 +42,16 @@ aspire-aws/
       fanout_processor/handler.py
       eventbridge_handler/handler.py
       stepfunctions_task/handler.py
+      produtor_de_ofertas/handler.py
+      roteador_de_ofertas/handler.py
+      eco_consignado/handler.py
 
   scenarios/
     01-S3.Basic/                 # Um projeto xUnit por cenario
     02-SQS.Basic/
     ...
     15-StepFunctions.Orchestration/
+    16-Pipeline.Scheduler.Router/
 ```
 
 ---

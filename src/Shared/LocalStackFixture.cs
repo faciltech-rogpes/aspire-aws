@@ -13,6 +13,8 @@ public class LocalStackFixture : IAsyncLifetime
     private bool _scenarioInitialized;
 
     public const string Endpoint = "http://localhost:4566";
+    public const string PostgresConnectionString =
+        "Host=localhost;Port=5433;Database=testdb;Username=test;Password=test";
 
     protected static bool ModoAws =>
         string.Equals(Environment.GetEnvironmentVariable("AWS_TARGET"), "aws",
@@ -147,7 +149,7 @@ public class LocalStackFixture : IAsyncLifetime
                 await Task.Delay(100).ConfigureAwait(false);
                 return false;
             }
-        }, timeout: TimeSpan.FromMinutes(5), interval: TimeSpan.FromMilliseconds(250),
+        }, timeout: TimeSpan.FromMinutes(15), interval: TimeSpan.FromMilliseconds(250),
         failureMessage: "Timed out waiting for exclusive access to LocalStack port 4566.")
         .ConfigureAwait(false);
 

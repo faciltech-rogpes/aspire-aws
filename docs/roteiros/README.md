@@ -105,3 +105,5 @@ dotnet test aspire-aws.sln --no-build -v minimal
 13. [13-pipeline-sns-sqs-lambda-s3.md](./13-pipeline-sns-sqs-lambda-s3.md)
 14. [14-eventbridge-lambda.md](./14-eventbridge-lambda.md)
 15. [15-stepfunctions-orchestration.md](./15-stepfunctions-orchestration.md)
+16. [17-rds-basic.md](./17-rds-basic.md)
+17. [18-ecs-runtask.md](./18-ecs-runtask.md)

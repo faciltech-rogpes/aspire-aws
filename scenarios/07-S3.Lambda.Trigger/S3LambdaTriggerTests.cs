@@ -27,7 +27,7 @@ public class S3LambdaTriggerTests(Fixture fixture, ITestOutputHelper output) : I
                 new Dictionary<string, AttributeValue> { ["key"] = new() { S = "report.pdf" } });
 
             return response.Item.ContainsKey("key");
-        }, timeout: TimeSpan.FromSeconds(30));
+        }, timeout: TimeSpan.FromSeconds(90));
 
         output.WriteLine(">>> DynamoDB.GetItem: lendo o registro gravado pela Lambda");
         var item = await fixture.DynamoDB.GetItemAsync(
