@@ -240,32 +240,29 @@ docker exec ls-test awslocal sqs delete-queue \
 
 ## 7. SSM Parameter Store
 
+> **Nota:** paths como `/app/...` são convertidos pelo MSYS do Git Bash para caminhos Windows.
+> Use `bash -c "..."` em todos os comandos SSM que recebem paths.
+
 ```bash
 # Criar parâmetro
-docker exec ls-test awslocal ssm put-parameter \
-  --name /app/config/database-url \
-  --value 'postgres://user:pass@host:5432/db' \
-  --type String
+docker exec ls-test bash -c "awslocal ssm put-parameter --name /app/config/database-url --value 'postgres://user:pass@host:5432/db' --type String"
 
 # Criar parâmetro seguro
-docker exec ls-test awslocal ssm put-parameter \
-  --name /app/secrets/api-key \
-  --value 'sk-abc123secret' \
-  --type SecureString
+docker exec ls-test bash -c "awslocal ssm put-parameter --name /app/secrets/api-key --value 'sk-abc123secret' --type SecureString"
 
 # Ler parâmetro
-docker exec ls-test awslocal ssm get-parameter --name /app/config/database-url
+docker exec ls-test bash -c "awslocal ssm get-parameter --name /app/config/database-url"
 # Esperado: Value = "postgres://user:pass@host:5432/db"
 
 # Ler com decriptação
-docker exec ls-test awslocal ssm get-parameter --name /app/secrets/api-key --with-decryption
+docker exec ls-test bash -c "awslocal ssm get-parameter --name /app/secrets/api-key --with-decryption"
 
 # Listar por path
-docker exec ls-test awslocal ssm get-parameters-by-path --path /app/ --recursive
+docker exec ls-test bash -c "awslocal ssm get-parameters-by-path --path /app/ --recursive"
 
 # Deletar
-docker exec ls-test awslocal ssm delete-parameter --name /app/config/database-url
-docker exec ls-test awslocal ssm delete-parameter --name /app/secrets/api-key
+docker exec ls-test bash -c "awslocal ssm delete-parameter --name /app/config/database-url"
+docker exec ls-test bash -c "awslocal ssm delete-parameter --name /app/secrets/api-key"
 ```
 
 ---
