@@ -2,4 +2,7 @@
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
     <RunSettingsFilePath>$(MSBuildThisFileDirectory)test.runsettings</RunSettingsFilePath>
   </PropertyGroup>
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)src/Shared/SkipAttributes.cs" Link="SkipAttributes.cs" />
+  </ItemGroup>
 </Project>

@@ -6,7 +6,7 @@ using Shared;
 
 namespace Scenarios.S3.SQS.Notification;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string BucketName = "notify-bucket";
 

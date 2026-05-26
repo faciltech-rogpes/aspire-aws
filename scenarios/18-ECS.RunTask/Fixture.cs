@@ -9,17 +9,17 @@ using Task = System.Threading.Tasks.Task;
 
 namespace Scenarios.ECS.RunTask;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
-    public const string NomeCluster       = "pedidos-cluster";
-    public const string FamiliaTask       = "pedido-processor";
-    public const string NomeFilaPedidos   = "fila-pedidos";
+    public const string NomeCluster = "pedidos-cluster";
+    public const string FamiliaTask = "pedido-processor";
+    public const string NomeFilaPedidos = "fila-pedidos";
     public const string NomeTabelaPedidos = "pedidos";
 
     public AmazonECSClient ECS { get; private set; } = null!;
     public AmazonSQSClient SQS { get; private set; } = null!;
-    public string ClusterArn     { get; private set; } = null!;
-    public string TaskDefArn     { get; private set; } = null!;
+    public string ClusterArn { get; private set; } = null!;
+    public string TaskDefArn { get; private set; } = null!;
     public string UrlFilaPedidos { get; private set; } = null!;
     public string ConnectionString => LocalStackFixture.PostgresConnectionString;
 
@@ -121,12 +121,13 @@ public class Fixture : LocalStackFixture
         _workerContainerId = await RunDockerAsync(
             "run", "-d",
             "--name", containerName,
-            "-e", "AWS_ENDPOINT_URL=http://host.docker.internal:4566",
+            "--network", "host",   // WSL2/Linux: compartilha o namespace de rede do host
+            "-e", "AWS_ENDPOINT_URL=http://localhost:4566",
             "-e", "AWS_DEFAULT_REGION=us-east-1",
             "-e", "AWS_ACCESS_KEY_ID=test",
             "-e", "AWS_SECRET_ACCESS_KEY=test",
-            "-e", "DATABASE_URL=postgresql://test:test@host.docker.internal:5433/testdb",
-            "-e", "FILA_PEDIDOS_URL=http://host.docker.internal:4566/000000000000/fila-pedidos",
+            "-e", "DATABASE_URL=postgresql://test:test@localhost:5433/testdb",
+            "-e", "FILA_PEDIDOS_URL=http://localhost:4566/000000000000/fila-pedidos",
             "ecs-worker:latest"
         );
     }
@@ -192,17 +193,17 @@ public class Fixture : LocalStackFixture
     {
         var psi = new ProcessStartInfo
         {
-            FileName               = "docker",
+            FileName = "docker",
             RedirectStandardOutput = true,
-            RedirectStandardError  = true,
-            UseShellExecute        = false
+            RedirectStandardError = true,
+            UseShellExecute = false
         };
         foreach (var arg in args)
             psi.ArgumentList.Add(arg);
 
         using var process = Process.Start(psi)!;
         var output = await process.StandardOutput.ReadToEndAsync();
-        var error  = await process.StandardError.ReadToEndAsync();
+        var error = await process.StandardError.ReadToEndAsync();
         await process.WaitForExitAsync();
 
         if (process.ExitCode != 0)

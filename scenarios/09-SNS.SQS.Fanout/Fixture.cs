@@ -6,7 +6,7 @@ using Shared;
 
 namespace Scenarios.SNS.SQS.Fanout;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public AmazonSimpleNotificationServiceClient SNS { get; private set; } = null!;
     public AmazonSQSClient SQS { get; private set; } = null!;

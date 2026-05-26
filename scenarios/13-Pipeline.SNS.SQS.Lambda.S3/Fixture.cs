@@ -9,7 +9,7 @@ using Shared;
 
 namespace Scenarios.Pipeline.SnsSqsLambdaS3;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string BucketName = "fanout-results";
     public const string FunctionName = "fanout-processor";

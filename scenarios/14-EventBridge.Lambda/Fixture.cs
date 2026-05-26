@@ -7,7 +7,7 @@ using Shared;
 
 namespace Scenarios.EventBridge.Lambda;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string BusName = "custom-bus";
     public const string FunctionName = "eventbridge-handler";

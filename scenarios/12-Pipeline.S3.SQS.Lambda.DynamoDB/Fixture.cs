@@ -9,7 +9,7 @@ using Shared;
 
 namespace Scenarios.Pipeline.S3SqsLambdaDynamoDb;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string BucketName = "pipeline-uploads";
     public const string FunctionName = "sqs-consumer-pipeline";

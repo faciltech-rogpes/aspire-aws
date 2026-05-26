@@ -4,7 +4,7 @@ using Shared;
 
 namespace Scenarios.DynamoDB.Basic;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string TableName = "items";
 

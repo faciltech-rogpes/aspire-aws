@@ -3,7 +3,7 @@ using Shared;
 
 namespace Scenarios.S3.Basic;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public AmazonS3Client S3 { get; private set; } = null!;
 

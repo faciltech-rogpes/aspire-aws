@@ -5,9 +5,9 @@ using Shared;
 
 namespace Scenarios.RDS.Basic;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
-    public const string NomeInstancia      = "rds-test-db";
+    public const string NomeInstancia = "rds-test-db";
     public const string NomeTabelaProdutos = "produtos";
 
     public AmazonRDSClient RDS { get; private set; } = null!;
@@ -42,12 +42,12 @@ public class Fixture : LocalStackFixture
             await RDS.CreateDBInstanceAsync(new CreateDBInstanceRequest
             {
                 DBInstanceIdentifier = NomeInstancia,
-                DBInstanceClass      = "db.t3.micro",
-                Engine               = "postgres",
-                MasterUsername       = "test",
-                MasterUserPassword   = "test",
-                AllocatedStorage     = 20,
-                DBName               = "testdb"
+                DBInstanceClass = "db.t3.micro",
+                Engine = "postgres",
+                MasterUsername = "test",
+                MasterUserPassword = "test",
+                AllocatedStorage = 20,
+                DBName = "testdb"
             });
 
             // 3. Aguarda status "available" (LocalStack Pro transiciona rapidamente)

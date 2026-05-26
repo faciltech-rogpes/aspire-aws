@@ -3,7 +3,7 @@ using Shared;
 
 namespace Scenarios.SQS.Basic;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public AmazonSQSClient SQS { get; private set; } = null!;
 

@@ -6,7 +6,7 @@ using Shared;
 
 namespace Scenarios.SQS.LambdaConsumer;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string FunctionName = "sqs-consumer";
     public const string TableName = "consumed-messages";

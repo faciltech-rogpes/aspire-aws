@@ -5,7 +5,7 @@ using Shared;
 
 namespace Scenarios.DynamoDB.Lambda;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string FunctionName = "dynamodb-writer";
     public const string ResultTable = "processed-events";

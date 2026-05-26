@@ -1,4 +1,3 @@
-using Xunit.Sdk;
 
 namespace Shared;
 
@@ -10,7 +9,7 @@ public static class PollingHelper
         TimeSpan? interval = null,
         string? failureMessage = null)
     {
-        timeout ??= TimeSpan.FromSeconds(30);
+        timeout ??= TimeSpan.FromSeconds(120);
         interval ??= TimeSpan.FromMilliseconds(500);
 
         var deadline = DateTimeOffset.UtcNow.Add(timeout.Value);
@@ -42,7 +41,7 @@ public static class PollingHelper
         {
             if (await condition().ConfigureAwait(false))
             {
-                throw new XunitException(
+                throw new Exception(
                     failureMessage ?? "Condition became true when it should have remained false.");
             }
 

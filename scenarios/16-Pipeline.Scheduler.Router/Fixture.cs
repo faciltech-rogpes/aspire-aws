@@ -11,33 +11,33 @@ using Shared;
 
 namespace Scenarios.Pipeline.Scheduler.Router;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string NomeLambdaProdutora = "produtor-de-ofertas";
     public const string NomeLambdaRoteadora = "roteador-de-ofertas";
-    public const string NomeLambdaEco       = "eco-consignado";
-    public const string NomeFilaOfertas     = "fila-ofertas-credito";
-    public const string NomeFilaConsignado  = "fila-consignado";
-    public const string NomeTabelaRegras    = "regras-de-roteamento";
-    public const string NomeAgendador       = "agendador-ofertas";
+    public const string NomeLambdaEco = "eco-consignado";
+    public const string NomeFilaOfertas = "fila-ofertas-credito";
+    public const string NomeFilaConsignado = "fila-consignado";
+    public const string NomeTabelaRegras = "regras-de-roteamento";
+    public const string NomeAgendador = "agendador-ofertas";
 
-    public AmazonSQSClient      SQS      { get; private set; } = null!;
+    public AmazonSQSClient SQS { get; private set; } = null!;
     public AmazonDynamoDBClient DynamoDB { get; private set; } = null!;
 
-    public string UrlFilaOfertas    { get; private set; } = null!;
+    public string UrlFilaOfertas { get; private set; } = null!;
     public string UrlFilaConsignado { get; private set; } = null!;
 
     protected override async Task InitializeScenarioAsync()
     {
-        SQS      = AwsClientFactory.SQS();
+        SQS = AwsClientFactory.SQS();
         DynamoDB = AwsClientFactory.DynamoDB();
 
         await DynamoDB.CreateTableAsync(new CreateTableRequest
         {
-            TableName            = NomeTabelaRegras,
+            TableName = NomeTabelaRegras,
             AttributeDefinitions = [new AttributeDefinition("segmento", ScalarAttributeType.S)],
-            KeySchema            = [new KeySchemaElement("segmento", KeyType.HASH)],
-            BillingMode          = BillingMode.PAY_PER_REQUEST
+            KeySchema = [new KeySchemaElement("segmento", KeyType.HASH)],
+            BillingMode = BillingMode.PAY_PER_REQUEST
         });
 
         await PollingHelper.WaitUntilAsync(async () =>
@@ -46,10 +46,10 @@ public class Fixture : LocalStackFixture
             return tabela.Table.TableStatus == TableStatus.ACTIVE;
         });
 
-        UrlFilaOfertas    = (await SQS.CreateQueueAsync(NomeFilaOfertas)).QueueUrl;
+        UrlFilaOfertas = (await SQS.CreateQueueAsync(NomeFilaOfertas)).QueueUrl;
         UrlFilaConsignado = (await SQS.CreateQueueAsync(NomeFilaConsignado)).QueueUrl;
 
-        var arnFilaOfertas    = (await SQS.GetQueueAttributesAsync(UrlFilaOfertas,    ["QueueArn"])).Attributes["QueueArn"];
+        var arnFilaOfertas = (await SQS.GetQueueAttributesAsync(UrlFilaOfertas, ["QueueArn"])).Attributes["QueueArn"];
         var arnFilaConsignado = (await SQS.GetQueueAttributesAsync(UrlFilaConsignado, ["QueueArn"])).Attributes["QueueArn"];
 
         await DynamoDB.PutItemAsync(new PutItemRequest
@@ -57,7 +57,7 @@ public class Fixture : LocalStackFixture
             TableName = NomeTabelaRegras,
             Item = new Dictionary<string, AttributeValue>
             {
-                ["segmento"]     = new AttributeValue { S = "consignado" },
+                ["segmento"] = new AttributeValue { S = "consignado" },
                 ["fila_destino"] = new AttributeValue { S = UrlFilaConsignado }
             }
         });
@@ -71,7 +71,7 @@ public class Fixture : LocalStackFixture
         await deployer.DeployAsync(NomeLambdaRoteadora, "roteador_de_ofertas",
             new Dictionary<string, string>
             {
-                ["TABELA_REGRAS"]       = NomeTabelaRegras,
+                ["TABELA_REGRAS"] = NomeTabelaRegras,
                 ["FILA_CONSIGNADO_URL"] = UrlFilaConsignado
             });
 
@@ -80,10 +80,10 @@ public class Fixture : LocalStackFixture
 
         var mappingRoteador = await lambda.CreateEventSourceMappingAsync(new CreateEventSourceMappingRequest
         {
-            FunctionName   = NomeLambdaRoteadora,
+            FunctionName = NomeLambdaRoteadora,
             EventSourceArn = arnFilaOfertas,
-            BatchSize      = 1,
-            Enabled        = true
+            BatchSize = 1,
+            Enabled = true
         });
 
         await PollingHelper.WaitUntilAsync(async () =>
@@ -94,10 +94,10 @@ public class Fixture : LocalStackFixture
 
         var mappingEco = await lambda.CreateEventSourceMappingAsync(new CreateEventSourceMappingRequest
         {
-            FunctionName   = NomeLambdaEco,
+            FunctionName = NomeLambdaEco,
             EventSourceArn = arnFilaConsignado,
-            BatchSize      = 1,
-            Enabled        = true
+            BatchSize = 1,
+            Enabled = true
         });
 
         await PollingHelper.WaitUntilAsync(async () =>
@@ -120,12 +120,12 @@ public class Fixture : LocalStackFixture
         using var scheduler = AwsClientFactory.Scheduler();
         await scheduler.CreateScheduleAsync(new CreateScheduleRequest
         {
-            Name               = NomeAgendador,
+            Name = NomeAgendador,
             ScheduleExpression = "rate(20 seconds)",
             FlexibleTimeWindow = new FlexibleTimeWindow { Mode = FlexibleTimeWindowMode.OFF },
             Target = new Amazon.Scheduler.Model.Target
             {
-                Arn     = produtora.Configuration.FunctionArn,
+                Arn = produtora.Configuration.FunctionArn,
                 RoleArn = $"arn:aws:iam::{accountId}:role/{NomeAgendador}-role"
             }
         });

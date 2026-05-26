@@ -1,10 +1,9 @@
 using Aspire.Hosting;
 using Aspire.Hosting.Testing;
-using Xunit;
 
 namespace Shared;
 
-public class LocalStackFixture : IAsyncLifetime
+public class LocalStackFixture
 {
     private const string LockFileName = "aspire-aws-localstack-4566.lock";
 

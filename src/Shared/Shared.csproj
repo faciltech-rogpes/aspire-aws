@@ -26,7 +26,10 @@
     <PackageReference Include="AWSSDK.Scheduler" Version="3.*" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="3.*" />
     <PackageReference Include="AWSSDK.StepFunctions" Version="3.*" />
-    <PackageReference Include="xunit" Version="2.9.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="SkipAttributes.cs" />
   </ItemGroup>
 
 </Project>

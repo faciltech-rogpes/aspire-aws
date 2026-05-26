@@ -1,5 +1,4 @@
 using System.Runtime.InteropServices;
-using Xunit;
 
 namespace Shared;
 
@@ -16,15 +15,4 @@ public static class EnvironmentLimitations
 
     public static bool IsMacOsArm64LocalStackLambdaUnsupported =>
         OperatingSystem.IsMacOS() && RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
-}
-
-public sealed class SkipOnMacOsArm64LocalStackLambdaFactAttribute : FactAttribute
-{
-    public SkipOnMacOsArm64LocalStackLambdaFactAttribute()
-    {
-        if (EnvironmentLimitations.IsMacOsArm64LocalStackLambdaUnsupported)
-        {
-            Skip = EnvironmentLimitations.MacOsArm64LambdaReason;
-        }
-    }
 }

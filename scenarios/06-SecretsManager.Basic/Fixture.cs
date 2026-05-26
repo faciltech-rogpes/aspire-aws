@@ -3,7 +3,7 @@ using Shared;
 
 namespace Scenarios.SecretsManager.Basic;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public AmazonSecretsManagerClient SecretsManager { get; private set; } = null!;
 

@@ -7,7 +7,7 @@ using Shared;
 
 namespace Scenarios.S3.LambdaTrigger;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public const string BucketName = "uploads";
     public const string FunctionName = "s3-processor";

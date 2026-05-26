@@ -3,7 +3,7 @@ using Shared;
 
 namespace Scenarios.SSM.Basic;
 
-public class Fixture : LocalStackFixture
+public class Fixture : LocalStackFixture, IAsyncLifetime
 {
     public AmazonSimpleSystemsManagementClient SSM { get; private set; } = null!;
 
