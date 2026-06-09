@@ -115,14 +115,15 @@ public class Fixture : LocalStackFixture, IAsyncLifetime
         await RunDockerAsync("build", workerPath, "-t", "ecs-worker:latest");
 
         // Inicia o container com nome único para evitar conflitos entre runs.
-        // Nota: no Docker Desktop (macOS/Windows) host.docker.internal está disponível nativamente.
-        // Em Linux puro, adicionar --add-host host.docker.internal:host-gateway manualmente.
+        // host.docker.internal resolve o host a partir do container. No Docker Desktop
+        // (macOS/Windows) já existe nativamente; no Docker Engine puro (Linux/WSL2) não —
+        // por isso o --add-host com host-gateway, que o define em ambos os ambientes.
         var containerName = $"ecs-worker-{Guid.NewGuid():N}";
         _workerContainerId = await RunDockerAsync(
             "run", "-d",
             "--name", containerName,
-            "--network", "host",   // WSL2/Linux: compartilha o namespace de rede do host
-            "-e", "AWS_ENDPOINT_URL=http://localhost:4566",
+            "--add-host", "host.docker.internal:host-gateway",
+            "-e", "AWS_ENDPOINT_URL=http://host.docker.internal:4566",
             "-e", "AWS_DEFAULT_REGION=us-east-1",
             "-e", "AWS_ACCESS_KEY_ID=test",
             "-e", "AWS_SECRET_ACCESS_KEY=test",

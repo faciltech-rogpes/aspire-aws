@@ -20,6 +20,12 @@ Nenhuma conta AWS necessária. Tudo roda em Docker.
 - [Limitações conhecidas](#limitações-conhecidas)
 - [Documentação adicional](#documentação-adicional)
 
+
+## Arquitetura de Referência
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/22416206-eef9-4ddd-9cf4-8faf6e9fc400" />
+
+
 ## Pré-requisitos
 
 | Requisito | Versão mínima                             |

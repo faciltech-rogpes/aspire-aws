@@ -38,7 +38,6 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --install -d Debian
-
 ```
 
 Se já estiver instalado, verifique se a distro Debian está presente:
@@ -58,7 +57,6 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --install -d Debian
-
 ```
 
 Garanta que a versão padrão é 2. Se alguma distro aparecer com `VERSION 1`, converta:
@@ -68,7 +66,6 @@ _PowerShell (Windows):_
 ```powershell
 wsl --set-default-version 2
 wsl --set-version Debian 2
-
 ```
 
 Após a instalação, reinicie o Windows se solicitado, depois prossiga.
@@ -116,7 +113,6 @@ echo \
 # Instala o Docker Engine
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
 ```
 
 Adicione seu usuário ao grupo Docker para não precisar de `sudo` a cada comando:
@@ -126,7 +122,6 @@ _Terminal Debian (WSL2):_
 ```bash
 sudo usermod -aG docker $USER
 newgrp docker
-
 ```
 
 ---
@@ -160,7 +155,6 @@ Digite o conteúdo abaixo. Se o arquivo já tiver conteúdo, adicione apenas as 
 ```ini
 [boot]
 systemd=true
-
 ```
 
 Para salvar e sair do `nano`:
@@ -175,7 +169,6 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --shutdown
-
 ```
 
 ---
@@ -217,7 +210,6 @@ Digite exatamente (as duas linhas `ExecStart=` são obrigatórias):
 [Service]
 ExecStart=
 ExecStart=/usr/bin/dockerd
-
 ```
 
 Salve: **Ctrl+X** → **Y** → **Enter**
@@ -229,7 +221,6 @@ _Terminal Debian (WSL2):_
 ```bash
 sudo systemctl disable docker.socket
 sudo systemctl stop docker.socket
-
 ```
 
 ### 4d. Aplicar e habilitar o serviço
@@ -240,7 +231,6 @@ _Terminal Debian (WSL2):_
 sudo systemctl daemon-reload
 sudo systemctl enable docker
 sudo systemctl start docker
-
 ```
 
 Verifique:
@@ -286,7 +276,6 @@ _PowerShell (Windows):_
 
 ```powershell
 winget install Docker.DockerCLI
-
 ```
 
 Feche e reabra o PowerShell após a instalação.
@@ -357,7 +346,6 @@ _PowerShell (Windows):_
 ```powershell
 cd D:\Projetos\Credito\aspire-aws
 dotnet test scenarios/01-S3.Basic/
-
 ```
 
 Os 5 testes devem passar. O Aspire sobe o LocalStack e o PostgreSQL automaticamente via Docker Engine no WSL2.
