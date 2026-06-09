@@ -20,6 +20,12 @@ Nenhuma conta AWS necessária. Tudo roda em Docker.
 - [Limitações conhecidas](#limitações-conhecidas)
 - [Documentação adicional](#documentação-adicional)
 
+
+## Arquitetura de Referência
+
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/22416206-eef9-4ddd-9cf4-8faf6e9fc400" />
+
+
 ## Pré-requisitos
 
 
@@ -221,3 +227,4 @@ dotnet test scenarios/XX-Foo/
 - [docs/architecture/README.md](docs/architecture/README.md) — Índice arquitetural: diagramas C4, mapa de módulos e ADRs
 - [docs/architecture/adrs/](docs/architecture/adrs/) — Decisões arquiteturais (ADR-001 a ADR-006)
 - [docs/architecture.md](docs/architecture.md) — Arquitetura detalhada, conceitos AWS, padrões de implementação
+- [docs/docker-engine-wsl2-windows.md](docs/docker-engine-wsl2-windows.md) — Setup e troubleshooting de Docker Engine no Windows via WSL2
