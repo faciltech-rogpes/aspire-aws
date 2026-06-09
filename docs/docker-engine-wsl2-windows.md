@@ -3,6 +3,9 @@
 Guia para instalar o Docker Engine diretamente no WSL2, dispensando o Docker Desktop.
 Necessário para rodar os cenários deste projeto em Windows sem licença Docker Desktop.
 
+> **⚠️ ATENÇÃO: PowerShell vs. CMD**
+> Salvo indicação em contrário, todos os comandos do Windows neste guia devem ser executados no **PowerShell**, e não no Prompt de Comando (CMD). O PowerShell possui sintaxes específicas (como manipulação de variáveis de ambiente) que falharão no CMD padrão.
+
 > **Como funciona a conexão Windows ↔ Docker:**
 > O Docker Engine roda dentro do Debian (WSL2) e escuta na porta TCP `2375`.
 > O WSL2 em modo NAT faz **port forwarding automático** para o Windows — enquanto o WSL2
@@ -14,7 +17,7 @@ Necessário para rodar os cenários deste projeto em Windows sem licença Docker
 ## Pré-requisitos
 
 - Windows 10 (build 19041+) ou Windows 11
-- .NET SDK 10+
+- .NET SDK 10+ (Instruções no Passo 7)
 
 ---
 
@@ -26,14 +29,16 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --status
+
 ```
 
-Se o comando não for reconhecido, instale:
+> **Saída esperada:** Informações sobre a distribuição, como `Distribuição padrão: Debian` e `Versão Padrão: 2`. Se o comando não for reconhecido, instale usando o comando abaixo.
 
 _PowerShell (Windows):_
 
 ```powershell
 wsl --install -d Debian
+
 ```
 
 Se já estiver instalado, verifique se a distro Debian está presente:
@@ -42,7 +47,10 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --list --verbose
+
 ```
+
+> **Saída esperada:** Uma lista contendo `Debian` com o status `Running` ou `Stopped` e a versão `2`.
 
 Caso Debian não apareça na lista, instale-a:
 
@@ -50,6 +58,7 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --install -d Debian
+
 ```
 
 Garanta que a versão padrão é 2. Se alguma distro aparecer com `VERSION 1`, converta:
@@ -59,6 +68,7 @@ _PowerShell (Windows):_
 ```powershell
 wsl --set-default-version 2
 wsl --set-version Debian 2
+
 ```
 
 Após a instalação, reinicie o Windows se solicitado, depois prossiga.
@@ -68,14 +78,8 @@ Após a instalação, reinicie o Windows se solicitado, depois prossiga.
 ## 2. Instalar o Docker Engine dentro do Debian
 
 > **Como abrir o terminal Debian:**
-> Procure por **"Debian"** no menu Iniciar e clique no app, ou execute no PowerShell:
->
-> ```powershell
-> wsl -d Debian
-> ```
->
+> Procure por **"Debian"** no menu Iniciar e clique no app, ou execute no PowerShell: `wsl -d Debian`
 > O prompt muda para algo como `roger@MAQUINA:~$` — você está dentro do Linux.
->
 > **Como sair e voltar ao Windows:** digite `exit` e pressione **Enter**, ou feche a janela.
 
 Abra o terminal Debian e **verifique se o Docker já está instalado:**
@@ -84,11 +88,10 @@ _Terminal Debian (WSL2):_
 
 ```bash
 docker --version
+
 ```
 
-Se retornar uma versão (ex: `Docker version 29.x.x`), pule para o [passo 3](#3-habilitar-o-systemd-no-debian).
-
-Caso contrário, execute:
+> **Saída esperada:** Algo como `Docker version 29.x.x, build...`. Se retornar a versão, pule para o [passo 3](https://www.google.com/search?q=%233-habilitar-o-systemd-no-debian). Caso retorne erro (comando não encontrado), siga abaixo.
 
 _Terminal Debian (WSL2):_
 
@@ -102,17 +105,18 @@ sudo apt install -y ca-certificates curl gnupg
 
 # Repositório oficial Docker
 sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+curl -fsSL [https://download.docker.com/linux/debian/gpg](https://download.docker.com/linux/debian/gpg) | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/debian $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  [https://download.docker.com/linux/debian](https://download.docker.com/linux/debian) $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 # Instala o Docker Engine
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
 ```
 
 Adicione seu usuário ao grupo Docker para não precisar de `sudo` a cada comando:
@@ -122,6 +126,7 @@ _Terminal Debian (WSL2):_
 ```bash
 sudo usermod -aG docker $USER
 newgrp docker
+
 ```
 
 ---
@@ -136,9 +141,10 @@ _Terminal Debian (WSL2):_
 
 ```bash
 systemctl --version
+
 ```
 
-Se retornar um número de versão, o systemd já está ativo — pule para o [passo 4](#4-configurar-o-docker-para-aceitar-conexões-tcp).
+> **Saída esperada:** `systemd 252 (252.x-x...)` ou um número de versão similar. Se retornar, pule para o [passo 4](https://www.google.com/search?q=%234-configurar-o-docker-para-aceitar-conex%C3%B5es-tcp).
 
 Caso contrário, ative-o editando `/etc/wsl.conf`:
 
@@ -146,13 +152,15 @@ _Terminal Debian (WSL2):_
 
 ```bash
 sudo nano /etc/wsl.conf
+
 ```
 
-O editor abre no terminal. Digite o conteúdo abaixo. Se o arquivo já tiver conteúdo, adicione apenas as linhas que faltarem:
+Digite o conteúdo abaixo. Se o arquivo já tiver conteúdo, adicione apenas as linhas que faltarem:
 
 ```ini
 [boot]
 systemd=true
+
 ```
 
 Para salvar e sair do `nano`:
@@ -167,14 +175,7 @@ _PowerShell (Windows):_
 
 ```powershell
 wsl --shutdown
-```
 
-Abra o terminal Debian novamente e confirme:
-
-_Terminal Debian (WSL2):_
-
-```bash
-systemctl --version
 ```
 
 ---
@@ -193,43 +194,42 @@ sudo bash -c 'cat > /etc/docker/daemon.json << EOF
   "hosts": ["unix:///var/run/docker.sock", "tcp://0.0.0.0:2375"]
 }
 EOF'
+
 ```
 
 > **Aviso de segurança:** a porta 2375 não usa TLS. Use apenas em ambiente de desenvolvimento local.
-> Nunca exponha essa porta em redes compartilhadas ou corporativas.
 
 ### 4b. Criar o override do serviço systemd
 
-O systemd passa `-H fd://` ao iniciar o Docker, e o Docker não aceita a opção `hosts` definida
-em dois lugares ao mesmo tempo. O override remove esse flag para que apenas o `daemon.json` defina as interfaces.
+O systemd passa `-H fd://` ao iniciar o Docker, e o Docker não aceita a opção `hosts` definida em dois lugares ao mesmo tempo. O override remove esse flag.
 
 _Terminal Debian (WSL2):_
 
 ```bash
 sudo mkdir -p /etc/systemd/system/docker.service.d
 sudo nano /etc/systemd/system/docker.service.d/override.conf
+
 ```
 
-Digite exatamente (as duas linhas `ExecStart=` são obrigatórias — a primeira limpa o valor padrão):
+Digite exatamente (as duas linhas `ExecStart=` são obrigatórias):
 
 ```ini
 [Service]
 ExecStart=
 ExecStart=/usr/bin/dockerd
+
 ```
 
 Salve: **Ctrl+X** → **Y** → **Enter**
 
 ### 4c. Desabilitar o docker.socket
 
-O systemd inclui uma unidade `docker.socket` que pode ativar o Docker via socket antes do serviço
-iniciar, reintroduzindo o `-H fd://` e ignorando o override. Desabilite-a:
-
 _Terminal Debian (WSL2):_
 
 ```bash
 sudo systemctl disable docker.socket
 sudo systemctl stop docker.socket
+
 ```
 
 ### 4d. Aplicar e habilitar o serviço
@@ -240,6 +240,7 @@ _Terminal Debian (WSL2):_
 sudo systemctl daemon-reload
 sudo systemctl enable docker
 sudo systemctl start docker
+
 ```
 
 Verifique:
@@ -248,10 +249,10 @@ _Terminal Debian (WSL2):_
 
 ```bash
 sudo systemctl status docker
+
 ```
 
-Deve aparecer `Active: active (running)`. Confirme que **não** há `TriggeredBy: docker.socket`
-na saída — se aparecer, o socket ainda está ativo e o passo 4c não foi aplicado corretamente.
+> **Saída esperada:** `Active: active (running)`. (Nota: A mensagem `TriggeredBy: docker.socket` pode aparecer em alguns cenários funcionais, o importante é que o status esteja como _running_).
 
 Confirme que o processo subiu sem `-H fd://`:
 
@@ -259,9 +260,10 @@ _Terminal Debian (WSL2):_
 
 ```bash
 ps aux | grep dockerd
+
 ```
 
-A linha do processo deve mostrar apenas `/usr/bin/dockerd`, sem `-H fd://`.
+> **Saída esperada:** `/usr/bin/dockerd` (sem o texto `-H fd://`).
 
 Confirme que a porta TCP está escutando:
 
@@ -269,15 +271,10 @@ _Terminal Debian (WSL2):_
 
 ```bash
 ss -tlnp | grep 2375
+
 ```
 
-Deve retornar uma linha com `*:2375`. Teste o Docker localmente:
-
-_Terminal Debian (WSL2):_
-
-```bash
-docker run hello-world
-```
+> **Saída esperada:** Uma linha contendo `*:2375`.
 
 ---
 
@@ -289,6 +286,7 @@ _PowerShell (Windows):_
 
 ```powershell
 winget install Docker.DockerCLI
+
 ```
 
 Feche e reabra o PowerShell após a instalação.
@@ -299,7 +297,10 @@ _PowerShell (Windows):_
 
 ```powershell
 [Environment]::SetEnvironmentVariable("DOCKER_HOST", "tcp://localhost:2375", "User")
+
 ```
+
+> **Alternativa CMD (DOS):** Caso esteja usando o Prompt de Comando padrão em vez do PowerShell, utilize o comando: `setx DOCKER_HOST "tcp://localhost:2375"`
 
 Feche e reabra o PowerShell. Verifique (com o Debian já aberto em outra janela):
 
@@ -307,60 +308,56 @@ _PowerShell (Windows):_
 
 ```powershell
 docker info | Select-String "Server Version"
-```
 
-> **Importante:** o Docker só fica acessível enquanto o WSL2 estiver ativo.
-> Antes de rodar os testes, siga o passo 6.
+```
 
 ---
 
 ## 6. Antes de rodar os testes: iniciar o WSL2
 
-O Docker sobe automaticamente pelo systemd quando o WSL2 inicia. **É necessário manter um terminal Debian aberto durante toda a execução dos testes** — o WSL2 fica ativo enquanto houver uma sessão aberta, e o port forwarding para `localhost:2375` depende disso.
+O Docker sobe automaticamente pelo systemd quando o WSL2 inicia. **É necessário manter um terminal Debian aberto durante toda a execução dos testes**.
 
-Abra o terminal Debian por qualquer uma das opções abaixo:
+Para maior praticidade durante o desenvolvimento, use o **Terminal integrado do VS Code**:
 
----
-
-**Menu Iniciar**
-
-Procure por **"Debian"** e clique no app. Uma janela de terminal Linux abrirá.
-
----
-
-**Git Bash**
-
-```bash
-wsl -d Debian
-```
+1. Abra um novo terminal (**Ctrl+`**).
+2. Clique na seta ao lado do `+` (canto superior direito do painel de terminal).
+3. Escolha **Debian (WSL)** ou **Git Bash** e abra o Debian por ele.
+4. Aguarde o prompt `usuario@MAQUINA:~$` aparecer. O Docker já estará rodando em background.
 
 ---
 
-**PowerShell**
+## 7. Preparar Ambiente e Verificar Integração
+
+### 7a. Instalar .NET 10 SDK e Workload Aspire
+
+Para compilar e orquestrar os testes, é obrigatório possuir o .NET 10 SDK e o workload do Aspire.
+
+_PowerShell (Windows) - Execute como Administrador se necessário:_
 
 ```powershell
-wsl -d Debian
+winget install Microsoft.DotNet.SDK.10
+
 ```
 
----
+Após instalar, **feche e reabra o PowerShell ou o VS Code** para recarregar as variáveis de ambiente. Em seguida, instale o workload:
 
-**Terminal integrado do VS Code**
+_PowerShell (Windows):_
 
-Abra um novo terminal (**Ctrl+\`**), clique na seta ao lado do `+` e escolha **Debian (WSL)** na lista de perfis disponíveis.
+```powershell
+dotnet workload install aspire
 
----
+```
 
-Após abrir, aguarde o prompt `usuario@MAQUINA:~$` aparecer — o Docker já estará rodando. Minimize a janela e execute os testes normalmente. Não feche o terminal enquanto os testes estiverem em execução.
+### 7b. Rodar os testes
 
----
-
-## 7. Verificar integração com o projeto
+Com o terminal Debian (WSL2) rodando em background e as dependências instaladas, navegue até a pasta do projeto:
 
 _PowerShell (Windows):_
 
 ```powershell
 cd D:\Projetos\Credito\aspire-aws
 dotnet test scenarios/01-S3.Basic/
+
 ```
 
 Os 5 testes devem passar. O Aspire sobe o LocalStack e o PostgreSQL automaticamente via Docker Engine no WSL2.
@@ -369,53 +366,25 @@ Os 5 testes devem passar. O Aspire sobe o LocalStack e o PostgreSQL automaticame
 
 ## 8. Verificar e limpar containers após os testes
 
-O Aspire remove os containers ao final de cada execução, mas se um teste falhar no meio do caminho containers podem ficar parados.
+O Aspire remove os containers ao final de cada execução, mas se um teste falhar no meio do caminho, containers podem ficar parados.
 
-**Verificar containers em execução:**
-
-_Terminal Debian (WSL2):_
-
-```bash
-docker ps
-```
-
-**Verificar todos os containers, incluindo os parados:**
-
-_Terminal Debian (WSL2):_
-
-```bash
-docker ps -a
-```
-
-**Remover containers parados:**
+**Remover containers parados (Recomendado):**
 
 _Terminal Debian (WSL2):_
 
 ```bash
 docker container prune -f
+
 ```
 
-> **Recomendado para uso cotidiano.** Remove apenas containers parados — o equivalente ao que o Aspire
-> faria ao encerrar normalmente. As imagens (`localstack/localstack`, `postgres`) são preservadas,
-> evitando novo download na próxima execução.
-
-**Limpeza geral** (containers parados + imagens sem uso + redes + cache de build):
+**Limpeza geral (Use com cautela):**
 
 _Terminal Debian (WSL2):_
 
 ```bash
 docker system prune -f
+
 ```
-
-> **Use com cautela.** Remove as imagens não referenciadas por nenhum container, incluindo
-> `localstack/localstack` e `postgres`. Na próxima execução dos testes, essas imagens serão
-> baixadas novamente (pode levar alguns minutos dependendo da conexão).
-
-> `docker system prune` não remove volumes. Para remover tudo incluindo volumes (apaga dados persistentes):
->
-> ```bash
-> docker system prune --volumes -f
-> ```
 
 ---
 
@@ -423,3 +392,7 @@ docker system prune -f
 
 - [Documentação oficial Docker Engine — Debian](https://docs.docker.com/engine/install/debian/)
 - [Documentação WSL2 — Microsoft](https://learn.microsoft.com/pt-br/windows/wsl/)
+
+```
+
+```
